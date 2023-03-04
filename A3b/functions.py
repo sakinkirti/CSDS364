@@ -178,3 +178,12 @@ def delta(t=0, fs:float=1):
         return np.array([1 if abs(t_-c) <= abs(c-1/(fs*2)) else 0 for t_ in T]) 
     else:
         return 1 if abs(t) < abs(c-1/(fs*2)) else 0
+
+def power(x):
+    X = np.array(x)
+    return energy(x)/X.size
+
+def energy(x):
+    # raise all elements to 2nd power and sum all elements
+    X = np.array(x)
+    return np.sum(np.power(X, 2))

@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from matplotlib import pyplot as plt
 
 def sinewave(t, f:float=1.0, d:float=0.0):
     """
@@ -14,153 +15,98 @@ def sinewave(t, f:float=1.0, d:float=0.0):
     float - the function value for the specified time
     """
 
-    # check that t is of type np.array
-    t = np.array(t) if type(t) is list else t
-
-    # math and return
-    return np.sin((2 * np.pi * f * t) + (2 * np.pi * d * f))
+    if(type(t) == list):
+        t = np.array(t)
+    phi = 2 * np.pi * d * f
+    return np.sin(2 * np.pi * f * t + phi)
 
 def cosinewave(t, f:float=1, d:float=0):
     t = np.array(t) if type(t) is list else t
     
     return np.cos((2 * np.pi * f * t) + (2 * np.pi * d * f))
 
-def gabor(t, a:float=1.0, sigma:float=1, f:float=1.0, phi:float=0.0):
-    """
-    method to define the gabor function
-    
-    params:
-    t: float or np.array or list - the input x values
-    a: float - the amplitude of the wave
-    sigma: float - the gaussian width (standard distrubution)
-    f: float - frequency
-    phi: float - the phase to give gabore or gaboro functions
-    """
-
-    # math and return
+def gabor(t, a=1.0, sigma=1, f=1.0, phi=0.0):
     return a * np.exp((-t**2)/(2.0 * (sigma**2))) * np.cos(2*np.pi*f*t+phi)
 
-def gabore(t, a:float=1.0, sigma:float=1, f:float=1.0):
-    """
-    a helper function to perform the even gabor function
 
-    params:
-    t: float or np.array or list - the input x values
-    a: float - the amplitude of the wave
-    sigma: float - the gaussian width (standard distrubution)
-    f: float - frequency
-    phi: float - the phase to give gabore or gaboro functions
+def gabore(t, a=1.0, sigma=1, f=1.0):
+    return gabor(t, a, sigma, f=f, phi=0.0)
 
-    return:
-    the even function of a gabor
-    """
 
-    # call gabor with correct phase and return
-    return gabor(t, a, sigma, f, phi=0.0)
+def gaboro(t, a=1.0, sigma=1, f=1.0):
+    return gabor(t, a, sigma, f=f, phi=(np.pi/2))
 
-def gaboro(t, a:float=1.0, sigma:float=1, f:float=1.0):
-    """
-    a helper function to perform the odd gabor function
-
-    params:
-    t: float or np.array or list - the input x values
-    a: float - the amplitude of the wave
-    sigma: float - the gaussian width (standard distrubution)
-    f: float - frequency
-    phi: float - the phase to give gaboro functions
-
-    return:
-    the even function of a gabor
-    """
-
-    # call gabor with correct phase and return
-    return gabor(t, a, sigma, f, phi=(np.pi/2))
 
 def gabor_norm(fs, sigma=1, f=1.0, phi=0.0):
-    """
-    function to define the normalized gabor
-    
-    params:
-    fs: float - the space between x-values
-    sigma: float - the gaussian width
-    f: float - the frequency
-    phi: the gabor phase (0 or np.pi/2)
-    
-    return:
-    np.array - the normalized gabor values
-    """
+    vanish_point = math.sqrt(-math.log(0.01)*2*(sigma)**2)
+    time_val = -vanish_point
+    t = []
+    while time_val < vanish_point:
+        t.append(time_val)
+        time_val += 1/fs
 
-    # define time values
-    T = np.arange(-math.sqrt(-math.log(0.01)*2*(sigma)**2), math.sqrt(-math.log(0.01)*2*(sigma)**2), fs)
+    gabor_vals = []
+    for t_val in t:
+        gabor_vals.append(gabor(t_val, a=1.0, sigma=sigma, f=f, phi=phi))
+    return np.linalg.norm(gabor_vals, ord=2)
 
-    # gabor and return
-    G = gabor(T, a=1.0, sigma=sigma, f=f, phi=phi)
-    return np.linalg.norm(G, ord=2)
 
 def gabore_norm(fs, sigma=1, f=1.0):
-    """
-    function to define the normalized gabor
-    
-    params:
-    fs: float - the space between x-values
-    sigma: float - the gaussian width
-    f: float - the frequency
-    
-    return:
-    np.array - the normalized gabor values
-    """
+    vanish_point = math.sqrt(-math.log(0.01)*2*(sigma)**2)
+    time_val = -vanish_point
+    t = []
+    while time_val < vanish_point:
+        t.append(time_val)
+        time_val += 1/fs
 
-    # define time values
-    T = np.arange(-math.sqrt(-math.log(0.01)*2*(sigma)**2), math.sqrt(-math.log(0.01)*2*(sigma)**2), fs)
+    gabor_vals = []
+    for t_val in t:
+        gabor_vals.append(gabore(t_val, a=1.0, sigma=sigma, f=f))
+    return np.linalg.norm(gabor_vals, ord=2)
 
-    # gabor and return
-    G = gabore(T, a=1, sigma=sigma, f=f)
-    return np.linalg.norm(G, ord=2)
 
 def gaboro_norm(fs, sigma=1, f=1.0):
-    """
-    function to define the normalized gabor
-    
-    params:
-    fs: float - the space between x-values
-    sigma: float - the gaussian width
-    f: float - the frequency
-    phi: the gabor phase (0 or np.pi/2)
-    
-    return:
-    np.array - the normalized gabor values
-    """
+    vanish_point = math.sqrt(-math.log(0.01)*2*(sigma)**2)
+    time_val = -vanish_point
+    t = []
+    while time_val < vanish_point:
+        t.append(time_val)
+        time_val += 1/fs
 
-    # define time values
-    T = np.arange(-math.sqrt(-math.log(0.01)*2*(sigma)**2), math.sqrt(-math.log(0.01)*2*(sigma)**2), fs)
+    gabor_vals = []
+    for t_val in t:
+        gabor_vals.append(gaboro(t_val, a=1.0, sigma=sigma, f=f))
+    return np.linalg.norm(gabor_vals, ord=2)
 
-    # gabor and return
-    G = gaboro(T, a=1.0, sigma=sigma, f=f)
-    return np.linalg.norm(G, ord=2)
 
-def gammatone(t, a:float=1, f:float=200, n:float=4.0, phi:float=0.0, norm:bool=True):
-    """
-    function to implement the gammatone
-    
-    params:
-    t: list or np.array or float - the input time value
-    f: float - frequency
-    n: float - shape parameter
-    phi: float - phase
-    """
+def plot_gabor(t, sigma=4.0, f=1.0, a=1.0):
+    gabore_vals = []
+    for t_val in t:
+        gabore_vals.append(gabore(t_val, sigma=sigma, f=f, a=a))
 
-    # check that t is the right form
-    t = np.array(t) if type(t) is list else t
+    plt.figure(figsize=(8, 6), dpi=80)
+    plt.plot(t, gabore_vals)
+    plt.ylabel("Amplitude")
+    plt.xlabel("Time (s)")
+    plt.show()
 
-    # calculate other params, math
+# 1c
+
+
+def gammatone(t, n: int = 4, f=1.0, phi=0.0, normalize = False):
+    if(type(t) == list):
+        t = np.array(t)
     b = 1.019*(24.7*(((4.37*f)/1000) + 1))
-    G = gaboro_norm(0.01, 100, 10000) * (t**(n-1))*np.exp(-2*np.pi*b*t)*np.cos(2*np.pi*f*t + phi)
+    gamma_value = (t**(n-1))*np.exp(-2*np.pi*b*t)*np.cos(2*np.pi*f*t + phi)
+    if normalize:
+        return gamma_value / gammatone_norm(n=n, f=f)
+    else: 
+        return gamma_value
 
-    # normalize if necessary and return
-    G = ( G / max(G) ) if norm is True else G
-    return G
+def gammatone_norm(n: int = 4, f=1.0):
+    return np.max(np.abs(gammatone(np.linspace(0, 3, 44100*3+1), n=n, f=f, normalize=False)))
 
-def u(t=0):
+def u(t=0, f=1):
     # function of tlim
     c = 0
     T = np.array(t)
@@ -172,9 +118,27 @@ def delta(t=0, fs:float=1):
     # function of tlim
     c = 0
     T = np.array(t)
-
+    flag = False
+    cache = []
+    
     # delta and return
     if T.size > 1:
-        return np.array([1 if abs(t_-c) <= abs(c-1/(fs*2)) else 0 for t_ in T]) 
+        for t_ in T:
+            if abs(t_-c) <= abs(c-1/(fs*2)) and flag == False:
+                flag = True
+                cache.append(1)
+            else:
+                cache.append(0)
+        
+        return np.array(cache) 
     else:
         return 1 if abs(t) < abs(c-1/(fs*2)) else 0
+
+def power(x):
+    X = np.array(x)
+    return energy(x)/X.size
+
+def energy(x):
+    # raise all elements to 2nd power and sum all elements
+    X = np.array(x)
+    return np.sum(np.power(X, 2))
